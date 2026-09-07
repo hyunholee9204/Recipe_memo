@@ -1,0 +1,12 @@
+{
+  "name": "recipe-note",
+  "version": "1.0.0",
+  "private": true,
+  "description": "자취생을 위한 나만의 요리 레시피 메모장 (순수 HTML/CSS/JS, localStorage)",
+  "scripts": {
+    "dev": "npx --yes live-server@1.2.2 --port=8765 --entry-file=index.html",
+    "start": "npx --yes serve@14 --listen 8765 ."
+  },
+  "keywords": ["recipe", "vanilla-js", "localstorage", "static"],
+  "license": "MIT"
+}

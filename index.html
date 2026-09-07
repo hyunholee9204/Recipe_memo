@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="자취생을 위한 나만의 레시피 메모장" />
+  <title>레시피 노트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B3%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div class="app-brand">
+        <h1 class="app-title"><span class="app-brand__mark">🍳</span> 레시피 노트</h1>
+        <p class="app-tagline">직접 만든 요리를 기록하는 나만의 부엌 노트</p>
+      </div>
+      <div class="app-header__actions">
+        <div class="search">
+          <input type="search" id="searchInput" placeholder="제목 · 재료 · 태그 검색" autocomplete="off" />
+        </div>
+        <button class="btn btn--primary" id="newRecipeBtn">+ 새 레시피</button>
+        <div class="menu">
+          <button class="btn btn--icon" id="menuBtn" aria-label="메뉴" aria-haspopup="true">⋯</button>
+          <div class="menu__dropdown" id="menuDropdown" hidden>
+            <button class="menu__item" id="exportBtn">JSON으로 백업하기</button>
+            <button class="menu__item" id="importBtn">백업 파일 불러오기</button>
+            <input type="file" id="importInput" accept="application/json" hidden />
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="filters" id="filterBar"></nav>
+
+  <main class="container">
+    <div class="list-meta" id="listMeta"></div>
+    <section class="grid" id="recipeGrid"></section>
+    <div class="empty" id="emptyState" hidden></div>
+  </main>
+
+  <footer class="app-footer">
+    <p>데이터는 이 브라우저에만 저장돼요. 기기를 바꾸거나 캐시를 지우면 사라지니 가끔 백업하세요.</p>
+  </footer>
+
+  <!-- 상세 보기 / 편집 오버레이 -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true">
+      <button class="sheet__close" id="sheetClose" aria-label="닫기">✕</button>
+      <div class="sheet__body" id="sheetBody"></div>
+    </div>
+  </div>
+
+  <template id="detailTemplate">
+    <article class="detail">
+      <div class="detail__media" data-media></div>
+      <div class="detail__head">
+        <h2 data-title></h2>
+        <button class="fav-toggle" data-fav aria-label="즐겨찾기"></button>
+      </div>
+      <div class="detail__rating" data-rating hidden>
+        <div class="stars" data-rating-stars></div>
+        <span class="detail__rating-label" data-rating-label></span>
+      </div>
+      <div class="detail__badges" data-badges></div>
+      <div class="detail__grid">
+        <section>
+          <h3><span class="section-icon">🧺</span>재료</h3>
+          <ul class="checklist" data-ingredients></ul>
+        </section>
+        <section>
+          <h3><span class="section-icon">🔪</span>만드는 법</h3>
+          <ol class="steps" data-steps></ol>
+        </section>
+      </div>
+      <section class="detail__memo" data-memo-wrap hidden>
+        <h3><span class="section-icon">📝</span>메모</h3>
+        <p data-memo></p>
+      </section>
+      <div class="detail__actions">
+        <button class="btn" data-edit>수정</button>
+        <button class="btn btn--danger" data-delete>삭제</button>
+      </div>
+      <p class="detail__timestamp" data-timestamp></p>
+    </article>
+  </template>
+
+  <template id="formTemplate">
+    <form class="recipe-form" data-form>
+      <h2 data-form-title>새 레시피</h2>
+
+      <label class="field">
+        <span>제목 <em>*</em></span>
+        <input type="text" name="title" required maxlength="80" placeholder="예: 계란 김치볶음밥" />
+      </label>
+
+      <div class="field">
+        <span>사진</span>
+        <div class="image-picker" data-image-picker>
+          <input type="file" name="image" accept="image/*" hidden />
+          <button type="button" class="image-picker__btn" data-image-btn>사진 선택</button>
+          <button type="button" class="image-picker__clear" data-image-clear hidden>사진 삭제</button>
+          <div class="image-picker__preview" data-image-preview hidden></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <span>내 평가 <small>별을 누를 때마다 반 칸씩 채워져요</small></span>
+        <div class="rating-input" data-rating-input>
+          <div class="stars stars--edit" data-rating-stars></div>
+          <span class="rating-input__label" data-rating-label>평가 없음</span>
+          <button type="button" class="rating-input__clear" data-rating-clear hidden>지우기</button>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span>카테고리</span>
+          <select name="category">
+            <option value="한식">한식</option>
+            <option value="양식">양식</option>
+            <option value="일식">일식</option>
+            <option value="중식">중식</option>
+            <option value="분식">분식</option>
+            <option value="밑반찬">밑반찬</option>
+            <option value="국·찌개">국·찌개</option>
+            <option value="간식·디저트">간식·디저트</option>
+            <option value="음료">음료</option>
+            <option value="기타" selected>기타</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>조리시간 (분)</span>
+          <input type="number" name="time" min="0" max="1440" step="1" placeholder="15" />
+        </label>
+        <label class="field">
+          <span>난이도</span>
+          <select name="difficulty">
+            <option value="쉬움" selected>쉬움</option>
+            <option value="보통">보통</option>
+            <option value="어려움">어려움</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span>태그 <small>쉼표로 구분</small></span>
+        <input type="text" name="tags" placeholder="자취요리, 10분, 전자레인지" />
+      </label>
+
+      <label class="field">
+        <span>재료 <small>한 줄에 하나씩</small></span>
+        <textarea name="ingredients" rows="6" placeholder="밥 1공기&#10;김치 1/2컵&#10;계란 2개&#10;대파 조금"></textarea>
+      </label>
+
+      <label class="field">
+        <span>만드는 법 <small>한 줄에 한 단계씩</small></span>
+        <textarea name="steps" rows="7" placeholder="팬에 기름을 두르고 김치를 볶는다&#10;밥을 넣고 같이 볶는다&#10;계란프라이를 올린다"></textarea>
+      </label>
+
+      <label class="field">
+        <span>메모 <small>선택</small></span>
+        <textarea name="memo" rows="3" placeholder="다음엔 고춧가루 조금 덜 넣기"></textarea>
+      </label>
+
+      <div class="recipe-form__actions">
+        <button type="button" class="btn" data-cancel>취소</button>
+        <button type="submit" class="btn btn--primary">저장</button>
+      </div>
+    </form>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

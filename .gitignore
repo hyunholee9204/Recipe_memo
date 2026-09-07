@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# npx / build caches
+.npm/
+.cache/
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# scratch screenshots (docs/ 는 커밋)
+_shot_*.png
