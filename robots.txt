@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hyunholee9204.github.io/Recipe_memo/sitemap.xml

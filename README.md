@@ -3,8 +3,12 @@
 > 직접 만든 요리를 기록하는, 나만의 부엌 노트
 
 자취를 하다 보면 "그때 그거 어떻게 만들었더라?" 하는 순간이 자주 온다.
-**레시피 노트**는 서버도 로그인도 없이, 내 브라우저 안에만 저장되는 개인용 요리 기록장이다.
-메모장처럼 부담 없이 적고, 다음에 요리할 때 체크리스트처럼 펼쳐 본다.
+**레시피 노트**는 두 가지를 한곳에 둔 사이트다.
+
+1. **자취 집밥 레시피 모음** — 재료가 적고 설거지가 덜 나오는 한식 위주 레시피를 직접 써서 올린 정적 콘텐츠 (`/recipes/`)
+2. **개인용 레시피 메모장 앱** — 서버도 로그인도 없이 내 브라우저에만 저장되는 요리 기록장 (`index.html`)
+
+레시피 글과 소개·개인정보처리방침 등 정적 페이지는 `content/` 의 데이터에서 생성기(`tools/build.mjs`)로 뽑아낸다.
 
 <p align="center">
   <img src="docs/screenshot-home.png" width="49%" alt="레시피 목록 화면" />
@@ -27,54 +31,83 @@
 
 ## 🛠 기술 스택
 
-- **순수 HTML + CSS + JavaScript** — 프레임워크·빌드 도구 없음
-- **localStorage** — 모든 데이터는 브라우저에 저장, 서버 불필요
-- **Google Fonts** — 명조 계열(Gowun Batang / Nanum Myeongjo)로 손글씨 레시피 카드 느낌
-- 개발 편의를 위한 `live-server` (자동 새로고침)
-
-정적 파일 3개(`index.html`, `styles.css`, `app.js`)가 전부라 어디든 그대로 올라간다.
+- **순수 HTML + CSS + JavaScript** — 런타임 프레임워크 없음
+- **localStorage** — 앱의 모든 데이터는 브라우저에 저장, 서버 불필요
+- **Node(빌드 전용)** — `tools/build.mjs` 가 `content/*.json` 과 `content/pages/*.html` 을 읽어
+  레시피 상세·목록·정책 페이지·`sitemap.xml`·`robots.txt` 를 생성. 외부 의존성 0개
+- **Google Fonts** — 명조 계열(Gowun Batang / Nanum Myeongjo)
+- 개발용 `live-server`(자동 새로고침)
 
 ## 🚀 실행
 
 ```bash
-# 그냥 파일을 열어도 동작한다
-open index.html
+# 정적 페이지 생성 (실서비스 주소 기준)
+npm run build
 
-# 또는 로컬 개발 서버 (파일 저장 시 자동 새로고침)
-npm run dev        # http://127.0.0.1:8765
-
-# 자동 새로고침이 필요 없다면
-npm run start
+# 로컬 미리보기 — localhost 기준으로 다시 빌드 후 서버 실행
+npm run dev        # http://localhost:8765  (자동 새로고침)
+npm run start      # http://localhost:8765
 ```
 
-> `npm install` 은 필요 없다. 스크립트가 `npx` 로 서버를 즉석 실행한다.
+> `npm install` 은 필요 없다. Node 18+ 만 있으면 된다.
+> `npm run build` 는 `content/site.json` 의 `url` 을 기준으로 링크를 만든다.
+> 로컬 확인용 `dev`/`start` 는 `--base http://localhost:8765` 로 다시 빌드한다.
+> **배포 전에는 반드시 `npm run build` 를 한 번 돌려** 실서비스 링크로 커밋한다.
 
 ## 📦 배포
 
-정적 사이트라 아래 어디든 폴더를 그대로 올리면 끝이다.
+정적 사이트라 폴더를 그대로 올리면 된다. 현재는 **GitHub Pages 프로젝트 페이지**를 기준으로 한다.
 
-- **GitHub Pages** — Settings → Pages → 브랜치 선택
-- **Netlify / Vercel / Cloudflare Pages** — 폴더 드래그 앤 드롭
+- 저장소 → Settings → Pages → Source: `Deploy from a branch`, Branch: `main` / `/(root)`
+- 서비스 주소: `https://hyunholee9204.github.io/Recipe_memo/`
+- 프로젝트 페이지라 하위 경로에서 서비스되므로, 생성기가 내부 링크에
+  `content/site.json` 의 경로(`/Recipe_memo`)를 접두어로 붙인다.
+- 커스텀 도메인으로 옮기면 `site.json` 의 `url` 을 도메인만으로 바꾸고 다시 빌드하면 접두어가 사라진다.
 
 ## 🗂 프로젝트 구조
 
 ```
 .
-├── index.html      # 마크업 + 상세/편집용 <template> + AdSense 태그
-├── styles.css      # 디자인 시스템, 다크 모드, 반응형
-├── app.js          # 상태 관리 · 저장 · 렌더링 · 백업 (의존성 없음)
-├── ads.txt         # AdSense 게시자 인증
-├── package.json    # dev/start 스크립트
-└── docs/           # README용 스크린샷
+├── index.html          # 메모장 앱 (상세/편집용 <template> + AdSense)
+├── styles.css          # 디자인 시스템, 다크 모드, 반응형 (앱 + 콘텐츠 공용)
+├── app.js              # 앱 상태 관리 · 저장 · 렌더링 · 백업
+├── site.js             # 콘텐츠 페이지 공용 스크립트 (광고 슬롯 처리)
+├── ads.txt             # AdSense 게시자 인증
+├── content/            # ── 콘텐츠 소스 (여기만 고치면 됨) ──
+│   ├── site.json       #   사이트 이름·주소·내비게이션·AdSense ID
+│   ├── recipes.json    #   레시피 데이터 (제목·재료·순서·팁·FAQ …)
+│   └── pages/          #   about / privacy / terms / contact / guide 본문
+├── tools/build.mjs     # 정적 페이지 생성기
+├── recipes/            # ── 생성물 ── 레시피 상세 + 목록 (커밋됨)
+├── about.html …        # ── 생성물 ── 정책·소개 페이지 (커밋됨)
+├── sitemap.xml         # ── 생성물 ──
+├── robots.txt          # ── 생성물 ──
+└── docs/               # README용 스크린샷
 ```
 
 ## 💰 광고 (Google AdSense)
 
-- `index.html` `<head>` 에 AdSense 로더 스크립트 + `google-adsense-account` 메타 태그
-- 루트의 `ads.txt` — 배포 시 `사이트주소/ads.txt` 로 노출되어야 함 (GitHub Pages·Netlify 등은 정적 파일이라 자동)
-- **자동 광고**: AdSense 콘솔에서 사이트에 자동 광고를 켜면 로더만으로 동작
-- **수동 배치**: `index.html` 의 `.ad-slot`(목록 상단/하단) 두 자리. AdSense 콘솔에서 광고 단위를 만들어 `data-ad-slot` 값(예: `"1234567890"`)을 넣으면 그 자리에 표시된다. 슬롯이 placeholder(`0000000000`)면 `app.js`가 그 자리를 숨긴다.
+- 모든 페이지 `<head>` 에 AdSense 로더 스크립트 + `google-adsense-account` 메타 태그
+- 루트의 `ads.txt` — 배포 시 `사이트주소/ads.txt` 로 노출되어야 한다.
+  GitHub Pages **프로젝트 페이지**에서는 `.../Recipe_memo/ads.txt` 에 위치하므로
+  도메인 루트만 읽는 AdSense 가 나중에 경고를 낼 수 있다. (사이트 확인 자체는 통과)
+  커스텀 도메인이나 사용자 페이지(`<id>.github.io`)로 옮기면 해결된다.
+- **자동 광고**: AdSense 콘솔에서 자동 광고를 켜면 로더만으로 동작
+- **수동 배치**: 목록 상단/하단(`index.html`)과 레시피 본문(`tools/build.mjs` 의 `adUnit`)에
+  `.ad-slot` 자리가 있다. AdSense 콘솔에서 광고 단위를 만들어 `data-ad-slot` 값을
+  `"0000000000"` 대신 넣으면 그 자리에 표시된다. placeholder 상태면 `app.js`/`site.js` 가 자리를 숨긴다.
 - 게시자 ID: `ca-pub-6499109636950804`
+
+### AdSense 심사 대비 체크리스트
+
+- [x] 직접 작성한 원본 레시피 글 12편 (재료·순서·팁·FAQ)
+- [x] 명확한 내비게이션 + 푸터 (레시피 / 가이드 / 앱 / 소개)
+- [x] 개인정보처리방침 (쿠키·제3자 광고·localStorage·opt-out 안내)
+- [x] 이용약관 · 소개 · 문의(이메일) 페이지
+- [x] `sitemap.xml` · `robots.txt` · canonical · OpenGraph · JSON-LD(Recipe/Breadcrumb/FAQ)
+- [x] 모바일 반응형 · 다크 모드
+- [ ] Google Search Console 에 사이트 등록 + `sitemap.xml` 제출 (배포 후)
+- [ ] `content/site.json` 의 `email` 을 실제 사용하는 주소로 확인
 
 ### 데이터 모델
 

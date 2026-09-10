@@ -1,0 +1,22 @@
+{
+  "name": "레시피 노트",
+  "tagline": "직접 만든 요리를 기록하는 나만의 부엌 노트",
+  "description": "자취생을 위한 요리 레시피 모음과 개인용 레시피 메모장. 재료가 적고 설거지가 덜 나오는, 매일 해 먹기 좋은 집밥 레시피를 정리합니다.",
+  "url": "https://hyunholee9204.github.io/Recipe_memo",
+  "locale": "ko_KR",
+  "author": "레시피 노트",
+  "email": "hyeonho0774@gmail.com",
+  "adsenseClient": "ca-pub-6499109636950804",
+  "nav": [
+    { "label": "레시피", "href": "/recipes/" },
+    { "label": "요리 시작 가이드", "href": "/guide.html" },
+    { "label": "메모장 앱", "href": "/" },
+    { "label": "소개", "href": "/about.html" }
+  ],
+  "legalNav": [
+    { "label": "소개", "href": "/about.html" },
+    { "label": "개인정보처리방침", "href": "/privacy.html" },
+    { "label": "이용약관", "href": "/terms.html" },
+    { "label": "문의", "href": "/contact.html" }
+  ]
+}
