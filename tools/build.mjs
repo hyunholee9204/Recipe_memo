@@ -23,16 +23,19 @@ if (baseArgIdx !== -1 && process.argv[baseArgIdx + 1]) {
 }
 
 const BASE = site.url.replace(/\/$/, "");
-/* GitHub Pages 프로젝트 페이지는 /<repo>/ 하위에서 서비스된다.
-   site.url 의 경로를 basePath 로 써서 내부 링크(/styles.css 등) 앞에 붙인다.
-   커스텀 도메인으로 옮기면 site.url 을 도메인만으로 바꾸면 basePath 가 "" 이 된다. */
-const BASE_PATH = new URL(site.url).pathname.replace(/\/$/, "");
 const AD_SLOT_PLACEHOLDER = "0000000000";
 
-/* 생성된 HTML 의 루트 절대경로(href="/...", src="/...")에 basePath 를 붙인다. */
-function applyBasePath(html) {
-  if (!BASE_PATH) return html;
-  return html.replace(/\b(href|src)="\/(?!\/)/g, `$1="${BASE_PATH}/`);
+/* 템플릿에서는 내부 링크를 항상 루트 절대경로(href="/styles.css")로 쓰고,
+   여기서 파일 위치(depth)에 맞는 상대경로로 바꾼다.
+   이렇게 하면 file:// 로 열든, 로컬 서버 루트든, GitHub Pages 프로젝트 경로
+   (/Recipe_memo/)든, 커스텀 도메인이든 어디서나 CSS·링크가 살아난다.
+   depth 0 = 저장소 루트 페이지(about.html 등), depth 1 = recipes/ 안. */
+function relativize(html, depth) {
+  const prefix = "../".repeat(depth);
+  return html.replace(/\b(href|src)="\/(?!\/)([^"]*)"/g, (_m, a, path) => {
+    const rel = path === "" ? prefix || "./" : prefix + path;
+    return `${a}="${rel}"`;
+  });
 }
 
 /* ---------- 유틸 ---------- */
@@ -470,14 +473,14 @@ mkdirSync(recipesDir, { recursive: true });
 
 let count = 0;
 for (const r of recipes) {
-  writeFileSync(join(recipesDir, `${r.slug}.html`), applyBasePath(recipePage(r)));
+  writeFileSync(join(recipesDir, `${r.slug}.html`), relativize(recipePage(r), 1));
   count++;
 }
-writeFileSync(join(recipesDir, "index.html"), applyBasePath(recipesIndex()));
+writeFileSync(join(recipesDir, "index.html"), relativize(recipesIndex(), 1));
 
 const pageFiles = readdirSync(join(CONTENT, "pages")).filter((f) => f.endsWith(".html"));
 for (const f of pageFiles) {
-  writeFileSync(join(ROOT, f), applyBasePath(contentPage(f)));
+  writeFileSync(join(ROOT, f), relativize(contentPage(f), 0));
 }
 
 writeFileSync(join(ROOT, "sitemap.xml"), sitemap());
