@@ -298,6 +298,32 @@ h1, h2, h3 {
   gap: 20px;
 }
 
+/* ---------- 광고 슬롯 (Google AdSense) ---------- */
+.ad-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 8px 22px;
+}
+.ad-slot--top { margin-top: 14px; }
+.ad-slot--bottom { margin-top: 28px; }
+.ad-slot__label {
+  align-self: flex-start;
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  opacity: 0.7;
+}
+.ad-slot .adsbygoogle {
+  display: block;
+  width: 100%;
+  min-height: 100px; /* 로딩 전 레이아웃 흔들림(CLS) 방지 */
+}
+
 /* ---------- Recipe card (레시피 카드) ---------- */
 .card {
   position: relative;

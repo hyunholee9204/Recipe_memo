@@ -729,12 +729,37 @@
     save();
   }
 
+  /* ---------- 광고 (Google AdSense) ----------
+     헤드의 adsbygoogle.js 로 "자동 광고"는 이미 동작한다.
+     아래는 수동 배치 슬롯 — AdSense 콘솔에서 광고 단위를 만들고
+     data-ad-slot 값을 넣으면 그 자리에 광고가 뜬다. (예: data-ad-slot="1234567890")
+     슬롯이 비어 있으면(placeholder) 자리만 차지하지 않도록 숨긴다. */
+  function initAds() {
+    const units = document.querySelectorAll("ins.adsbygoogle");
+    let active = 0;
+    units.forEach((ins) => {
+      const slot = ins.getAttribute("data-ad-slot") || "";
+      const box = ins.closest(".ad-slot");
+      if (/^\d{6,}$/.test(slot) && slot !== "0000000000") {
+        if (box) box.hidden = false;
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          active++;
+        } catch (_) {
+          /* 광고 차단기 등 — 무시 */
+        }
+      }
+    });
+    return active;
+  }
+
   /* ---------- 부트 ---------- */
   function init() {
     seedIfEmpty();
     state.recipes = load();
     wire();
     render();
+    initAds();
   }
 
   init();

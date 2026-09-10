@@ -60,12 +60,21 @@ npm run start
 
 ```
 .
-├── index.html      # 마크업 + 상세/편집용 <template>
+├── index.html      # 마크업 + 상세/편집용 <template> + AdSense 태그
 ├── styles.css      # 디자인 시스템, 다크 모드, 반응형
 ├── app.js          # 상태 관리 · 저장 · 렌더링 · 백업 (의존성 없음)
+├── ads.txt         # AdSense 게시자 인증
 ├── package.json    # dev/start 스크립트
 └── docs/           # README용 스크린샷
 ```
+
+## 💰 광고 (Google AdSense)
+
+- `index.html` `<head>` 에 AdSense 로더 스크립트 + `google-adsense-account` 메타 태그
+- 루트의 `ads.txt` — 배포 시 `사이트주소/ads.txt` 로 노출되어야 함 (GitHub Pages·Netlify 등은 정적 파일이라 자동)
+- **자동 광고**: AdSense 콘솔에서 사이트에 자동 광고를 켜면 로더만으로 동작
+- **수동 배치**: `index.html` 의 `.ad-slot`(목록 상단/하단) 두 자리. AdSense 콘솔에서 광고 단위를 만들어 `data-ad-slot` 값(예: `"1234567890"`)을 넣으면 그 자리에 표시된다. 슬롯이 placeholder(`0000000000`)면 `app.js`가 그 자리를 숨긴다.
+- 게시자 ID: `ca-pub-6499109636950804`
 
 ### 데이터 모델
 
