@@ -41,75 +41,47 @@
 ## 🚀 실행
 
 ```bash
-# 정적 페이지 생성 (실서비스 주소 기준)
+# 정적 페이지 생성 (content/ → recipes/, *.html, sitemap.xml, robots.txt)
 npm run build
 
-# 로컬 미리보기 — localhost 기준으로 다시 빌드 후 서버 실행
+# 로컬 미리보기 (빌드 후 서버 실행)
 npm run dev        # http://localhost:8765  (자동 새로고침)
 npm run start      # http://localhost:8765
 ```
 
 > `npm install` 은 필요 없다. Node 18+ 만 있으면 된다.
-> `npm run build` 는 `content/site.json` 의 `url` 을 기준으로 링크를 만든다.
-> 로컬 확인용 `dev`/`start` 는 `--base http://localhost:8765` 로 다시 빌드한다.
-> **배포 전에는 반드시 `npm run build` 를 한 번 돌려** 실서비스 링크로 커밋한다.
+> 생성물의 내부 링크는 상대경로라 `file://`, 로컬 서버, 하위 경로 어디서 열어도 동작한다.
+> `canonical`·`sitemap.xml` 의 절대 주소만 `content/site.json` 의 `url` 을 따른다.
 
 ## 📦 배포
 
-정적 사이트라 폴더를 그대로 올리면 된다. 현재는 **GitHub Pages 프로젝트 페이지**를 기준으로 한다.
+정적 사이트라 폴더를 그대로 올리면 된다.
 
 - 저장소 → Settings → Pages → Source: `Deploy from a branch`, Branch: `main` / `/(root)`
 - 서비스 주소: `https://hyunholee9204.github.io/Recipe_memo/`
-- 프로젝트 페이지라 하위 경로에서 서비스되므로, 생성기가 내부 링크에
-  `content/site.json` 의 경로(`/Recipe_memo`)를 접두어로 붙인다.
-- 커스텀 도메인으로 옮기면 `site.json` 의 `url` 을 도메인만으로 바꾸고 다시 빌드하면 접두어가 사라진다.
+- 콘텐츠를 고쳤다면 `npm run build` 후 생성물까지 함께 커밋한다.
 
 ## 🗂 프로젝트 구조
 
 ```
 .
-├── index.html          # 메모장 앱 (상세/편집용 <template> + AdSense)
+├── index.html          # 메모장 앱 (상세/편집용 <template> 포함)
 ├── styles.css          # 디자인 시스템, 다크 모드, 반응형 (앱 + 콘텐츠 공용)
 ├── app.js              # 앱 상태 관리 · 저장 · 렌더링 · 백업
-├── site.js             # 콘텐츠 페이지 공용 스크립트 (광고 슬롯 처리)
-├── ads.txt             # AdSense 게시자 인증
+├── site.js             # 콘텐츠 페이지 공용 스크립트
 ├── content/            # ── 콘텐츠 소스 (여기만 고치면 됨) ──
-│   ├── site.json       #   사이트 이름·주소·내비게이션·AdSense ID
+│   ├── site.json       #   사이트 이름 · 주소 · 내비게이션
 │   ├── recipes.json    #   레시피 데이터 (제목·재료·순서·팁·FAQ …)
-│   └── pages/          #   about / privacy / terms / contact / guide 본문
+│   └── pages/          #   소개 / 개인정보처리방침 / 이용약관 / 문의 / 가이드 본문
 ├── tools/build.mjs     # 정적 페이지 생성기
 ├── recipes/            # ── 생성물 ── 레시피 상세 + 목록 (커밋됨)
-├── about.html …        # ── 생성물 ── 정책·소개 페이지 (커밋됨)
+├── about.html …        # ── 생성물 ── 소개·정책 페이지 (커밋됨)
 ├── sitemap.xml         # ── 생성물 ──
 ├── robots.txt          # ── 생성물 ──
 └── docs/               # README용 스크린샷
 ```
 
-## 💰 광고 (Google AdSense)
-
-- 모든 페이지 `<head>` 에 AdSense 로더 스크립트 + `google-adsense-account` 메타 태그
-- 루트의 `ads.txt` — 배포 시 `사이트주소/ads.txt` 로 노출되어야 한다.
-  GitHub Pages **프로젝트 페이지**에서는 `.../Recipe_memo/ads.txt` 에 위치하므로
-  도메인 루트만 읽는 AdSense 가 나중에 경고를 낼 수 있다. (사이트 확인 자체는 통과)
-  커스텀 도메인이나 사용자 페이지(`<id>.github.io`)로 옮기면 해결된다.
-- **자동 광고**: AdSense 콘솔에서 자동 광고를 켜면 로더만으로 동작
-- **수동 배치**: 목록 상단/하단(`index.html`)과 레시피 본문(`tools/build.mjs` 의 `adUnit`)에
-  `.ad-slot` 자리가 있다. AdSense 콘솔에서 광고 단위를 만들어 `data-ad-slot` 값을
-  `"0000000000"` 대신 넣으면 그 자리에 표시된다. placeholder 상태면 `app.js`/`site.js` 가 자리를 숨긴다.
-- 게시자 ID: `ca-pub-6499109636950804`
-
-### AdSense 심사 대비 체크리스트
-
-- [x] 직접 작성한 원본 레시피 글 12편 (재료·순서·팁·FAQ)
-- [x] 명확한 내비게이션 + 푸터 (레시피 / 가이드 / 앱 / 소개)
-- [x] 개인정보처리방침 (쿠키·제3자 광고·localStorage·opt-out 안내)
-- [x] 이용약관 · 소개 · 문의(이메일) 페이지
-- [x] `sitemap.xml` · `robots.txt` · canonical · OpenGraph · JSON-LD(Recipe/Breadcrumb/FAQ)
-- [x] 모바일 반응형 · 다크 모드
-- [ ] Google Search Console 에 사이트 등록 + `sitemap.xml` 제출 (배포 후)
-- [ ] `content/site.json` 의 `email` 을 실제 사용하는 주소로 확인
-
-### 데이터 모델
+## 📇 데이터 모델
 
 ```js
 {
