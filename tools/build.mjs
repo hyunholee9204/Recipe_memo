@@ -82,6 +82,11 @@ function shell({ title, description, canonical, bodyClass = "", main, jsonLd = [
   <title>${esc(fullTitle)}</title>
   <meta name="description" content="${attr(description)}" />
   <link rel="canonical" href="${attr(canonical)}" />
+  ${
+    site.googleSiteVerification
+      ? `<meta name="google-site-verification" content="${attr(site.googleSiteVerification)}" />`
+      : ""
+  }
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="${attr(site.name)}" />
