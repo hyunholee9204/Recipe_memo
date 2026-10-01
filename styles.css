@@ -971,6 +971,76 @@ h1, h2, h3 {
 .breadcrumb a { color: var(--ink-soft); }
 .breadcrumb span[aria-hidden] { margin: 0 4px; opacity: 0.6; }
 
+/* ---------- 홈 ---------- */
+.hero { padding: 10px 0 8px; max-width: 70ch; }
+.hero__eyebrow {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.hero h1 {
+  font-size: 2.1rem;
+  line-height: 1.3;
+  margin-bottom: 14px;
+}
+.hero__lede {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  margin-bottom: 22px;
+}
+.hero__cta { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.value-row {
+  list-style: none;
+  padding: 0;
+  margin: 30px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+.value-row li {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.value-row strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  margin-bottom: 6px;
+}
+.value-row span { font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5; }
+
+.section-head h2 { font-size: 1.4rem; margin-bottom: 8px; }
+.cat-counts a { color: inherit; text-decoration: none; }
+.cat-counts a:hover { color: var(--accent); }
+
+.home-callout {
+  margin: 44px 0 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+.home-callout > div {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.home-callout h2 { font-size: 1.08rem; margin-bottom: 8px; }
+.home-callout p { font-size: 0.88rem; line-height: 1.65; color: var(--ink-soft); }
+.home-callout a { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .hero h1 { font-size: 1.6rem; }
+  .home-callout { grid-template-columns: 1fr; }
+}
+
 /* ---------- 산문(정책/소개/가이드) ---------- */
 .prose { font-size: 0.98rem; line-height: 1.75; }
 .prose h1 {
@@ -1190,6 +1260,20 @@ h1, h2, h3 {
   gap: 10px;
 }
 .tip-list li { font-size: 0.9rem; line-height: 1.6; }
+
+.recipe__variations { margin: 30px 0; }
+.recipe__variations .tip-list {
+  background: var(--accent-weak);
+  border-left-color: var(--accent);
+}
+
+.recipe__storage { margin: 30px 0; }
+.recipe__storage p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
 
 .recipe__faq { margin: 30px 0; }
 .faq__item {

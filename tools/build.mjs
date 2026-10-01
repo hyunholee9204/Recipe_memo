@@ -110,7 +110,7 @@ function shell({ title, description, canonical, bodyClass = "", main, jsonLd = [
 <body class="${bodyClass}">
   <header class="site-header">
     <div class="site-header__inner">
-      <a class="site-brand" href="/recipes/">
+      <a class="site-brand" href="/">
         <span class="site-brand__mark">🍳</span>
         <span class="site-brand__text">
           <strong>${esc(site.name)}</strong>
@@ -182,6 +182,9 @@ function recipePage(r) {
     .join("\n");
   const steps = r.steps.map((s) => `          <li>${esc(s)}</li>`).join("\n");
   const tips = r.tips.map((t) => `          <li>${esc(t)}</li>`).join("\n");
+  const variations = (r.variations || [])
+    .map((v) => `          <li>${esc(v)}</li>`)
+    .join("\n");
   const faq = r.faq
     .map(
       (f) =>
@@ -290,6 +293,26 @@ ${tips}
       </section>
 
       ${
+        r.variations && r.variations.length
+          ? `<section class="recipe__variations">
+        <h2>이렇게도 만들어요</h2>
+        <ul class="tip-list">
+${variations}
+        </ul>
+      </section>`
+          : ""
+      }
+
+      ${
+        r.storage
+          ? `<section class="recipe__storage">
+        <h2>보관하고 다시 데우기</h2>
+        <p>${esc(r.storage)}</p>
+      </section>`
+          : ""
+      }
+
+      ${
         r.faq.length
           ? `<section class="recipe__faq">
         <h2>자주 묻는 질문</h2>
@@ -392,6 +415,107 @@ ${cards}
   });
 }
 
+/* ---------- 홈 ---------- */
+function homePage() {
+  const canonical = `${BASE}/`;
+  const byCategory = {};
+  for (const r of recipes) (byCategory[r.category] ||= []).push(r);
+
+  const latest = recipes
+    .slice()
+    .sort((a, b) => (a.published < b.published ? 1 : -1))
+    .slice(0, 9);
+
+  const cards = latest
+    .map(
+      (r) => `          <li class="rcard">
+            <a href="/recipes/${attr(r.slug)}.html">
+              <span class="rcard__cat">${esc(r.category)}</span>
+              <span class="rcard__title">${esc(r.title)}</span>
+              <span class="rcard__summary">${esc(r.summary)}</span>
+              <span class="rcard__facts">${esc(r.servings)} · 약 ${esc(String(r.time))}분 · ${esc(
+        r.difficulty
+      )}</span>
+            </a>
+          </li>`
+    )
+    .join("\n");
+
+  const catList = Object.keys(byCategory)
+    .map(
+      (c) =>
+        `<li><a href="/recipes/">${esc(c)} <b>${byCategory[c].length}</b></a></li>`
+    )
+    .join("");
+
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: site.name,
+    description: site.description,
+    url: BASE + "/",
+  };
+
+  const main = `    <section class="hero">
+      <p class="hero__eyebrow">자취생을 위한 집밥 레시피 &amp; 메모장</p>
+      <h1>${esc(site.tagline)}</h1>
+      <p class="hero__lede">
+        재료가 적게 들고 설거지가 덜 나오는 집밥 레시피를 직접 만들어 보고 계량과 시간을 정리합니다.
+        지금까지 ${recipes.length}개의 레시피를 올렸고, 계속 늘려 가고 있습니다.
+      </p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="/recipes/">레시피 보러 가기</a>
+        <a class="btn" href="/guide.html">요리 시작 가이드</a>
+      </div>
+    </section>
+
+    <ul class="value-row">
+      <li><strong>재료 5~8개</strong><span>평균 재료 수가 적어 장보기 부담이 적습니다</span></li>
+      <li><strong>직접 테스트</strong><span>모든 레시피를 실제로 만들어 계량·시간을 확인합니다</span></li>
+      <li><strong>로그인 없음</strong><span>모든 글이 무료이며 회원가입 없이 바로 볼 수 있습니다</span></li>
+    </ul>
+
+${adUnit("display")}
+
+    <section class="section-head">
+      <h2>최근 레시피</h2>
+      <p>직접 써 본 자취 집밥 레시피입니다. 전체 목록은 <a href="/recipes/">레시피 모음</a>에서 카테고리별로 볼 수 있습니다.</p>
+      <ul class="cat-counts">${catList}</ul>
+    </section>
+
+    <ul class="rcard-grid">
+${cards}
+    </ul>
+
+    <section class="home-callout">
+      <div>
+        <h2>요리가 처음이라면</h2>
+        <p>
+          조리도구·기본 양념·계량 감 잡는 법을 정리한
+          <a href="/guide.html">자취 요리 시작 가이드</a>부터 읽어 보세요.
+          준비가 됐다면 "쉬움" 난이도이면서 재료가 적은 레시피부터 시작하면 됩니다.
+        </p>
+      </div>
+      <div>
+        <h2>내가 만든 요리는 메모장에</h2>
+        <p>
+          직접 만든 요리는 <a href="/app/">메모장 앱</a>에 사진과 별점으로 기록해 두세요.
+          로그인 없이 이 브라우저에만 저장되는 개인 공간이라, 다음에 장 볼 때
+          뭘 다시 만들지 정하기 쉬워집니다.
+        </p>
+      </div>
+    </section>`;
+
+  return shell({
+    title: site.name,
+    description: site.description,
+    canonical,
+    main,
+    activeHref: "/",
+    jsonLd: [websiteLd],
+  });
+}
+
 /* ---------- 일반 페이지 ---------- */
 function contentPage(file) {
   const raw = readFileSync(join(CONTENT, "pages", file), "utf8");
@@ -478,6 +602,8 @@ for (const r of recipes) {
 }
 writeFileSync(join(recipesDir, "index.html"), relativize(recipesIndex(), 1));
 
+writeFileSync(join(ROOT, "index.html"), relativize(homePage(), 0));
+
 const pageFiles = readdirSync(join(CONTENT, "pages")).filter((f) => f.endsWith(".html"));
 for (const f of pageFiles) {
   writeFileSync(join(ROOT, f), relativize(contentPage(f), 0));
@@ -486,6 +612,7 @@ for (const f of pageFiles) {
 writeFileSync(join(ROOT, "sitemap.xml"), sitemap());
 writeFileSync(join(ROOT, "robots.txt"), robots());
 
+console.log(`✓ 홈(index.html) 1개`);
 console.log(`✓ 레시피 ${count}개 + 목록 1개`);
 console.log(`✓ 일반 페이지 ${pageFiles.length}개: ${pageFiles.join(", ")}`);
 console.log(`✓ sitemap.xml, robots.txt`);

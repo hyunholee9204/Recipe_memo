@@ -8,9 +8,10 @@
   "email": "hyeonho0774@gmail.com",
   "adsenseClient": "ca-pub-6499109636950804",
   "nav": [
+    { "label": "홈", "href": "/" },
     { "label": "레시피", "href": "/recipes/" },
     { "label": "요리 시작 가이드", "href": "/guide.html" },
-    { "label": "메모장 앱", "href": "/" },
+    { "label": "메모장 앱", "href": "/app/" },
     { "label": "소개", "href": "/about.html" }
   ],
   "legalNav": [
